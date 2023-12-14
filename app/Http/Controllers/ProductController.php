@@ -45,8 +45,8 @@ class ProductController extends Controller
                 ->withGlobalSearch()
                 ->defaultSort('name')
                 ->column(key: 'name', searchable: true, sortable: true, canBeHidden: false)
-                ->column(key: 'price', searchable: true, sortable: true)
-                ->column(key: 'stock', label: 'Language')
+                ->column(key: 'price', sortable: true)
+                ->column(key: 'stock')
                 // ->column(label: 'Actions')
                 ->selectFilter(key: 'language_code', label: 'Language', options: [
                     'en' => 'English',
