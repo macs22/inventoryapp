@@ -22,6 +22,10 @@ Used:
 ## Steps to Clone
 
 - git clone https://github.com/macs22/inventoryapp.git
+- composer install
+- clone .env.example
+- php artisan key:generate
+- setup database credentials
 - php artisan migrate
 - php artisan make:filament-user (user you prefer)
 - php artisan serve
@@ -32,6 +36,19 @@ Used:
 ## Back End URl
 
 http://127.0.0.1:8000/admin/login
+
+## Back End Contents
+<img width="1440" alt="image" src="https://github.com/macs22/inventoryapp/assets/54869563/454159e4-595c-4236-8b0d-eb56535c32d5">
+
+<img width="1440" alt="image" src="https://github.com/macs22/inventoryapp/assets/54869563/57e63be7-9289-4117-b044-1e467f6c7849">
+
+<img width="1440" alt="image" src="https://github.com/macs22/inventoryapp/assets/54869563/60161b55-966e-46e0-9e58-dc78eb773ac3">
+
+<img width="1440" alt="image" src="https://github.com/macs22/inventoryapp/assets/54869563/402db12d-8d06-488c-880c-6b27da84b080">
+
+<img width="1440" alt="image" src="https://github.com/macs22/inventoryapp/assets/54869563/227275f0-7b44-4e12-acef-4ac9347d1003">
+
+![Uploading image.png…]()
 
 ## Front End URL
 
