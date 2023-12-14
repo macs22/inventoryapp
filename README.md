@@ -58,8 +58,7 @@ http://127.0.0.1:8000/login
 
 <img width="1168" alt="image" src="https://github.com/macs22/inventoryapp/assets/54869563/e429ed11-ab97-40bf-b60a-6951fa07ce44">
 
-![Uploading image.png…]()
-
+<img width="1434" alt="image" src="https://github.com/macs22/inventoryapp/assets/54869563/6be3672b-d324-4b20-9a36-ae46f136607d">
 
 ## License
 
