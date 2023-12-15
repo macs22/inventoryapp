@@ -4,14 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\ProfileUpdateRequest;
 use App\Models\Product;
-use Filament\Tables\Filters\QueryBuilder as FiltersQueryBuilder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Request;
 use Inertia\Inertia;
-use ProtoneMedia\LaravelQueryBuilderInertiaJs\InertiaTable;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 
@@ -22,37 +20,33 @@ class ProductController extends Controller
      */
     public function index()
     {
-        $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
-            $query->where(function ($query) use ($value) {
-                Collection::wrap($value)->each(function ($value) use ($query) {
+        $name = Request::get('search');
+        $category = Request::get('category');
+        $globalSearch = AllowedFilter::callback('global', function ($query, $value) use($name, $category) {
+            $query->where(function ($query) use ($value, $name, $category) {
+                Collection::wrap($value)->each(function ($value) use ($query, $name, $category) {
                     $query
-                        ->orWhere('name', 'LIKE', "%{$value}%");
+                        ->orWhere('name', 'LIKE', "%{$name}%")
+                        ->orWhere('category', 'LIKE', "%{$category}%");
                 });
             });
         });
 
-        $products = QueryBuilder::for(Product::class)
-            ->defaultSort('name')
-            ->allowedSorts(['name', 'price'])
-            ->allowedFilters(['name', $globalSearch])
-            ->paginate()
-            ->withQueryString();
-            
         return Inertia::render('Products/List', [
-            'products' => $products,
-        ])->table(function (InertiaTable $table) {
-            $table
-                ->withGlobalSearch()
-                ->defaultSort('name')
-                ->column(key: 'name', searchable: true, sortable: true, canBeHidden: false)
-                ->column(key: 'price', sortable: true)
-                ->column(key: 'stock')
-                // ->column(label: 'Actions')
-                ->selectFilter(key: 'language_code', label: 'Language', options: [
-                    'en' => 'English',
-                    'nl' => 'Dutch',
-                ]);
-            });
+            'filters' => Request::all('search', 'category'),
+            'products' =>  QueryBuilder::for(Product::class)
+                ->filter(Request::only('search', 'category'))
+                ->orderBy('name')
+                ->paginate(10)
+                ->withQueryString()
+                ->through(fn ($product) => [
+                    'id' => $product->id,
+                    'name' => $product->name,
+                    'price' => $product->price,
+                    'stock' => $product->stock,
+                    'category' => ucfirst($product->category),
+                ]),
+        ]);
     }
 
     /**

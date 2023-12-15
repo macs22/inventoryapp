@@ -3,23 +3,21 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\ProductResource\Pages;
-use App\Filament\Resources\ProductResource\RelationManagers;
 use App\Models\Product;
-use Filament\Forms;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Form;
+use Filament\Resources\Form;
 use Filament\Resources\Resource;
+use Filament\Resources\Table;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Filament\Tables\Filters\SelectFilter;
 
 class ProductResource extends Resource
 {
     protected static ?string $model = Product::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-collection';
 
     public static function form(Form $form): Form
     {
@@ -28,6 +26,15 @@ class ProductResource extends Resource
                 TextInput::make('name'),
                 TextInput::make('price')
                     ->rules(['required', 'numeric']),
+                Select::make('category')
+                    ->label('Category')
+                    ->options([
+                        'electronics' => 'Electronics',
+                        'clothing' => 'Clothing',
+                        'shoes' => 'Shoes',
+                    ])
+                    ->searchable()
+                    ->required(),
                 TextInput::make('stock')
                     ->rules(['required', 'numeric']),
             ]);
@@ -37,34 +44,38 @@ class ProductResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('name'),
-                TextColumn::make('price')->numeric(
-                    decimalPlaces: 0,
-                    decimalSeparator: '.',
-                    thousandsSeparator: ',',
-                ),
+                TextColumn::make('name')->searchable(),
+                TextColumn::make('price')->money('usd', true),
                 TextColumn::make('stock'),
+                TextColumn::make('category')->searchable()
+                    ->getStateUsing( function (Product $record){
+                        return ucfirst($record->category);
+                    }),
             ])
             ->filters([
-                //
+                SelectFilter::make('category')
+                    ->label(__('Categories'))
+                    ->options([
+                        'electronics' => 'Electronics',
+                        'clothing' => 'Clothing',
+                        'shoes' => 'Shoes',
+                    ])
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
+                Tables\Actions\DeleteBulkAction::make(),
             ]);
     }
-
+    
     public static function getRelations(): array
     {
         return [
             //
         ];
     }
-
+    
     public static function getPages(): array
     {
         return [
@@ -72,5 +83,5 @@ class ProductResource extends Resource
             'create' => Pages\CreateProduct::route('/create'),
             'edit' => Pages\EditProduct::route('/{record}/edit'),
         ];
-    }
+    }   
 }
