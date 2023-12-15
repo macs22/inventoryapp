@@ -20,7 +20,7 @@ import { Head, Link } from '@inertiajs/vue3';
                         </p>
                         <p class="mt-8 text-center">
                             <Link
-                                :href="route('products.list')"
+                                :href="route('products')"
                                 class="underline text-3xl text-blue-600 hover:text-blue-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                             >
                                 See Product List Here!
