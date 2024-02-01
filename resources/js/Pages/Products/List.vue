@@ -10,7 +10,7 @@ const props = defineProps({
 })
 
 const fields = [
-  'id','name','price','stock','category'
+    'name','price','stock'
 ]
 
 </script>
@@ -19,12 +19,18 @@ const fields = [
 
   <AuthenticatedLayout>
       <template #header>
-          <h2 class="font-semibold text-xl text-gray-800 leading-tight">Profile</h2>
+            <div class="flex justify-between">
+                <h2 class="text-xl font-semibold leading-tight text-gray-800">Products</h2>
+          
+                <button class="px-4 py-2 font-bold text-white bg-blue-500 rounded hover:bg-blue-700 focus:outline-none focus:shadow-outline" type="submit">
+                    <Link :href="route('products.create')">Create Product</Link>
+                </button>
+            </div>
       </template>
 
       <div class="py-12">
-          <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
-              <div class="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
+          <div class="mx-auto space-y-6 max-w-7xl sm:px-6 lg:px-8">
+              <div class="p-4 bg-white shadow sm:p-8 sm:rounded-lg">
                 <Table :fields="fields" :filters="props.filters" :products="props.products"></Table>
               </div>
           </div>

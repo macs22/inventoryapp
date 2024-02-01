@@ -2,12 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\ProfileUpdateRequest;
+use App\Http\Requests\ProductRequest;
 use App\Models\Product;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Request;
 use Inertia\Inertia;
 use Spatie\QueryBuilder\AllowedFilter;
@@ -21,21 +19,19 @@ class ProductController extends Controller
     public function index()
     {
         $name = Request::get('search');
-        $category = Request::get('category');
-        $globalSearch = AllowedFilter::callback('global', function ($query, $value) use($name, $category) {
-            $query->where(function ($query) use ($value, $name, $category) {
-                Collection::wrap($value)->each(function ($value) use ($query, $name, $category) {
-                    $query
-                        ->orWhere('name', 'LIKE', "%{$name}%")
-                        ->orWhere('category', 'LIKE', "%{$category}%");
+
+        $globalSearch = AllowedFilter::callback('global', function ($query, $value) use($name) {
+            $query->where(function ($query) use ($value, $name) {
+                Collection::wrap($value)->each(function ($value) use ($query, $name) {
+                    $query->where('name', 'LIKE', "%{$name}%");
                 });
             });
         });
 
         return Inertia::render('Products/List', [
-            'filters' => Request::all('search', 'category'),
+            'filters' => Request::all('search'),
             'products' =>  QueryBuilder::for(Product::class)
-                ->filter(Request::only('search', 'category'))
+                ->filter(Request::only('search'))
                 ->orderBy('name')
                 ->paginate(10)
                 ->withQueryString()
@@ -44,45 +40,50 @@ class ProductController extends Controller
                     'name' => $product->name,
                     'price' => $product->price,
                     'stock' => $product->stock,
-                    'category' => ucfirst($product->category),
                 ]),
         ]);
     }
 
-    /**
-     * Update the user's profile information.
-     */
-    public function update(ProfileUpdateRequest $request): RedirectResponse
+    public function create()
     {
-        $request->user()->fill($request->validated());
+        return Inertia::render('Products/Create');
+    }
 
-        if ($request->user()->isDirty('email')) {
-            $request->user()->email_verified_at = null;
-        }
+    public function store(ProductRequest $request)
+    {
+        Product::create($request->validated());
 
-        $request->user()->save();
+        return redirect()->route('products.index')->with('message', 'Product Created Successfully');
+    }
 
-        return Redirect::route('profile.edit');
+    public function edit($productId)
+    {
+        $product = Product::findOrFail($productId);
+
+        return Inertia::render('Products/Edit', [
+            'product' => $product
+        ]);
+    }
+
+    public function update(ProductRequest $request, $id)
+    {
+        $request->validated();
+        $product = Product::findOrFail($id);
+        $product->update($request->all());
+        
+        return redirect()->route('products.index')->with('message', 'Product edited successfully');
     }
 
     /**
-     * Delete the user's account.
-     */
-    public function destroy(Request $request): RedirectResponse
+    * Remove the specified resource from storage.
+    *
+    * @param  \App\Models\Product  $product
+    * @return \Illuminate\Http\Response
+    */
+    public function destroy(Product $product)
     {
-        $request->validate([
-            'password' => ['required', 'current_password'],
-        ]);
+        $product->delete();
 
-        $user = $request->user();
-
-        Auth::logout();
-
-        $user->delete();
-
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
-
-        return Redirect::to('/');
+        return redirect()->route('products.index')->with('message', 'Product Deleted Successfully');
     }
 }
